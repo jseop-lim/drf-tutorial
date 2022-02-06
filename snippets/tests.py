@@ -10,16 +10,32 @@ class SnippetViewTest(APITestCase):
         Snippet.objects.create(code='foo = "bar"\n')
         Snippet.objects.create(code='print("hello, world")\n')
 
-    def test_snippets_list(self):
+    def test_snippets_list_read(self):
         response = self.client.get(reverse('snippets:list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         serializer = SnippetSerializer(Snippet.objects.all(), many=True)
         self.assertEqual(json.loads(response.content), serializer.data)
+        self.assertEqual(Snippet.objects.count(), 2)
+              
+    def test_snippets_detail_create(self):
+        response = self.client.post(reverse('snippets:list'), {'code': 'test detail creation'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        snippet = response.content
+        response = self.client.get(reverse('snippets:detail', args=[json.loads(snippet)['id']]))
+        self.assertEqual(snippet, response.content)
         
-    def test_snippets_detail(self):
-        response = self.client.get(reverse('snippets:detail', args=[2]))
+    def test_snippets_detail_put(self):
+        snippet = Snippet.objects.create(code='test detail modify')
+        
+        url = reverse('snippets:detail', args=[snippet.id])
+        response = self.client.put(url, {'code': 'SELECT * FROM db;', 'language': 'sql'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        serializer = SnippetSerializer(Snippet.objects.get(pk=2))
-        self.assertEqual(json.loads(response.content), serializer.data)
+        snippet = Snippet.objects.get(id=snippet.id)
+        self.assertEqual(snippet.language, 'sql')
+        
+    def tearDown(self):
+        Snippet.objects.all().delete()
+        return super().tearDown()
