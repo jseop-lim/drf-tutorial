@@ -2,6 +2,7 @@ from snippets.models import Snippet
 from snippets.permissions import IsOwnerOrReadOnly
 from snippets.serializers import SnippetSerializer
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from snippets.serializers import UserSerializer
 
 from rest_framework import generics
@@ -14,9 +15,11 @@ class SnippetList(generics.ListCreateAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     # 사용자 권한에 따라 POST 요청 허용
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly
+    ]
     
-    # POST 요청 시에 호출되며, serializer로 쓸 수 없으므로 인스턴스에 직접 저장
+    # POST 요청 시에 호출되며, serializer로 쓰기가 불가능하므로 인스턴스에 직접 저장
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
@@ -28,8 +31,10 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     # 사용자 권한에 따라 PUT, DELETE 요청 허용
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly]
+    permission_classes = [
+        permissions.IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly
+    ]
     
 
 class UserList(generics.ListAPIView):
@@ -40,5 +45,10 @@ class UserList(generics.ListAPIView):
 
 class UserDetail(generics.RetrieveAPIView):
     # RetrieveAPIView는 단일 인스턴스에 대한 GET 요청만 허용 (READ ONLY)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
+    
+class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
