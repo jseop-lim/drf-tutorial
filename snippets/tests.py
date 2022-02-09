@@ -110,7 +110,7 @@ class UserViewTest(APITestCase):
         """
         로그인
         """
-        response = self.client.post(reverse('user-create'), {'username': 'test_user', 'password': '1234'})
+        response = self.client.post(reverse('user-list'), {'username': 'test_user', 'password': '1234'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user = User.objects.get(username='test_user')
         

@@ -7,7 +7,8 @@ from snippets.serializers import UserSerializer
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import generics, permissions, renderers
+from rest_framework.mixins import CreateModelMixin
+from rest_framework import permissions, renderers
 from rest_framework import viewsets
 
 @api_view(['GET'])
@@ -44,15 +45,11 @@ class SnippetViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet, CreateModelMixin):
     """
-    This viewset automatically provides `list` and `retrieve` actions.
-    (GET 요청만 허용)
+    This viewset automatically provides `list`, `retrieve`, and `create` actions.
+    + 회원가입 추가
+    (GET, POST 요청 허용)
     """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    
-    
-class UserCreate(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
