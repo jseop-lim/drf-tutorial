@@ -27,7 +27,8 @@ class SnippetViewTest(APITestCase):
         _request = self.factory.get(reverse('snippet-list'))
         
         serializer = SnippetSerializer(Snippet.objects.all(), many=True, context={'request': _request})
-        self.assertEqual(json.loads(response.content), serializer.data)
+        # 한 페이지 최대 수보다 적으므로 다음 페이지 안 봐도 통과
+        self.assertEqual(json.loads(response.content)['results'], serializer.data)
         self.assertEqual(Snippet.objects.count(), 2)
     
     
