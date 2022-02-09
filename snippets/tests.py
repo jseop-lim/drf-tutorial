@@ -1,7 +1,7 @@
 import json
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 from django.contrib.auth.models import User
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
@@ -9,6 +9,7 @@ from snippets.serializers import SnippetSerializer
 
 class SnippetViewTest(APITestCase):
     def setUp(self):
+        self.factory = APIRequestFactory()
         self.user = User.objects.create_user('user1', '1234')
         self.client.force_authenticate(self.user)
         Snippet.objects.create(code='foo = "bar"\n', owner=self.user)
@@ -18,11 +19,14 @@ class SnippetViewTest(APITestCase):
     def test_snippet_list_read(self):
         """
         READ Snippet List
-        """
+        """    
         response = self.client.get(reverse('snippet-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        serializer = SnippetSerializer(Snippet.objects.all(), many=True)
+        # HyperlinkedIdentityField는 request를 context로 전달해 주어야 함
+        _request = self.factory.get(reverse('snippet-list'))
+        
+        serializer = SnippetSerializer(Snippet.objects.all(), many=True, context={'request': _request})
         self.assertEqual(json.loads(response.content), serializer.data)
         self.assertEqual(Snippet.objects.count(), 2)
     
