@@ -19,7 +19,7 @@ class SnippetViewTest(APITestCase):
         """
         READ Snippet List
         """
-        response = self.client.get(reverse('snippet_list'))
+        response = self.client.get(reverse('snippet-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         serializer = SnippetSerializer(Snippet.objects.all(), many=True)
@@ -34,36 +34,36 @@ class SnippetViewTest(APITestCase):
         snippet_id = self.user.snippets.last().id
         
         # 작성자 읽기, 수정
-        response = self.client.get(reverse('snippet_detail', args=[snippet_id]))
+        response = self.client.get(reverse('snippet-detail', args=[snippet_id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.put(reverse('snippet_detail', args=[snippet_id]), {'code': 'changed_owner'}, format='json')
+        response = self.client.put(reverse('snippet-detail', args=[snippet_id]), {'code': 'changed_owner'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Snippet.objects.get(pk=snippet_id).code, 'changed_owner')
         self.client.logout()
         
         # 비로그인 작성
-        response = self.client.post(reverse('snippet_list'), {'code': 'user2_created'})
+        response = self.client.post(reverse('snippet-list'), {'code': 'user2_created'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertNotEqual(Snippet.objects.count(), 3)
         
         # 비로그인 읽기, 수정
-        response = self.client.get(reverse('snippet_detail', args=[snippet_id]))
+        response = self.client.get(reverse('snippet-detail', args=[snippet_id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.put(reverse('snippet_detail', args=[snippet_id]), {'code': 'changed_anonymous'})
+        response = self.client.put(reverse('snippet-detail', args=[snippet_id]), {'code': 'changed_anonymous'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Snippet.objects.get(pk=snippet_id).code, 'changed_owner')
         
         # 다른 사용자 작성
         user2 = User.objects.create_user('user2', '5678')
         self.client.force_authenticate(user2)
-        response = self.client.post(reverse('snippet_list'), {'code': 'user2_created'})
+        response = self.client.post(reverse('snippet-list'), {'code': 'user2_created'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Snippet.objects.count(), 3)
         
         # 다른 사용자 수정 (권한 X)
-        response = self.client.get(reverse('snippet_detail', args=[snippet_id]))
+        response = self.client.get(reverse('snippet-detail', args=[snippet_id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.put(reverse('snippet_detail', args=[snippet_id]), {'code': 'changed_other_user'})
+        response = self.client.put(reverse('snippet-detail', args=[snippet_id]), {'code': 'changed_other_user'})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Snippet.objects.get(pk=snippet_id).code, 'changed_owner')
 
@@ -73,11 +73,11 @@ class SnippetViewTest(APITestCase):
         """
         CREATE/READ 새로 Snippet 하나 생성하고 읽기
         """
-        response = self.client.post(reverse('snippet_list'), {'code': 'test detail creation'}, format='json')
+        response = self.client.post(reverse('snippet-list'), {'code': 'test detail creation'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         snippet = response.content
-        response = self.client.get(reverse('snippet_detail', args=[json.loads(snippet)['id']]))
+        response = self.client.get(reverse('snippet-detail', args=[json.loads(snippet)['id']]))
         self.assertEqual(snippet, response.content)
         
         
@@ -87,7 +87,7 @@ class SnippetViewTest(APITestCase):
         """
         snippet = Snippet.objects.create(code='test detail modify', owner=self.user)
       
-        url = reverse('snippet_detail', args=[snippet.id])
+        url = reverse('snippet-detail', args=[snippet.id])
         response = self.client.put(url, {'code': 'SELECT * FROM db;', 'language': 'sql'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -105,10 +105,10 @@ class UserViewTest(APITestCase):
         """
         로그인
         """
-        response = self.client.post(reverse('user_create'), {'username': 'test_user', 'password': '1234'})
+        response = self.client.post(reverse('user-create'), {'username': 'test_user', 'password': '1234'})
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         user = User.objects.get(username='test_user')
         
         self.assertTrue(self.client.login(username='test_user', password='1234'))
-        response = self.client.get(reverse('user_detail', args=[user.id]))
+        response = self.client.get(reverse('user-detail', args=[user.id]))
         self.assertContains(response, user)
