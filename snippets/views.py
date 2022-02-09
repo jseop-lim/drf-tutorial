@@ -5,8 +5,21 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from snippets.serializers import UserSerializer
 
-from rest_framework import generics
-from rest_framework import permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework import generics, permissions, renderers
+
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    """
+    """
+    return Response({
+        'users': reverse('user_list', request=request, format=format),
+        'snippets': reverse('snippet_list', request=request, format=format)
+    })
+
 
 class SnippetList(generics.ListCreateAPIView):
     """ [root view]
@@ -35,6 +48,18 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
         permissions.IsAuthenticatedOrReadOnly,
         IsOwnerOrReadOnly
     ]
+    
+
+class SnippetHighlight(generics.GenericAPIView):
+    """ [property view]
+    snippet의 highlighted 속성을 HTML 형식으로 반환
+    """
+    queryset = Snippet.objects.all()
+    renderer_classes = [renderers.StaticHTMLRenderer]
+
+    def get(self, request, *args, **kwargs):
+        snippet = self.get_object()  # TODO 왜 pk 전달 안해도 괜찮?
+        return Response(snippet.highlighted)
     
 
 class UserList(generics.ListAPIView):
