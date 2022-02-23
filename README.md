@@ -1,4 +1,4 @@
-# 개요
+## 개요
 
 [Django REST framework tutorial](https://www.django-rest-framework.org/tutorial/1-serialization/)을 진행하며 작성한 소스코드이다.
 
@@ -6,7 +6,7 @@
 
 
 
-# 환경
+## 환경
 
 * python 3.9.7
 * Django 4.0.2
@@ -16,7 +16,7 @@
 
 
 
-# 추가점
+## 추가점
 
 튜토리얼에서 제공된 코드에 아래 요소를 추가했다.
 
