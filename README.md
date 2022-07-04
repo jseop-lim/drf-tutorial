@@ -2,7 +2,7 @@
 
 [Django REST framework tutorial](https://www.django-rest-framework.org/tutorial/1-serialization/)을 진행하며 작성한 소스코드이다.
 
-튜토리얼과 더불어 찾아보고 정리한 내용은 [Notion](https://www.notion.so/DRF-tutorial-453cc2ab039e49d8b2150dd112fd8703)에 있다.
+튜토리얼과 더불어 찾아보고 정리한 내용은 [Notion](https://www.notion.so/jseoplim/DRF-tutorial-ca560b3997a74a0184b9fcd3aa5a0cd8)에 있다.
 
 
 
